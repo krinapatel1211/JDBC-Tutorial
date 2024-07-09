@@ -8,8 +8,9 @@ import java.util.Scanner;
 public class TransactionHandling {
 
     public static boolean isSufficient(Connection connection, int account_number, double amount){
-        String query = "select balance from accounts where id=?";
+        String query = "select balance from accounts where account_number = ?";
         try (PreparedStatement preparedStatement = connection.prepareStatement(query)) {
+            preparedStatement.setInt(1, account_number);
             ResultSet resultset = preparedStatement.executeQuery();
             if (resultset.next()){
                 double current_balance = resultset.getDouble("balance");
@@ -48,20 +49,16 @@ public class TransactionHandling {
                 creditPreparedStatement.setInt(2, 101);
                 
                 int rowsAffected1 = debitPreparedStatement.executeUpdate();
-                int rowsAffected2 = debitPreparedStatement.executeUpdate();
+                int rowsAffected2 = creditPreparedStatement.executeUpdate();
                 
-                if (isSufficient(connection, 101, amount)){
+                if (isSufficient(connection, account_number, amount)){
                     connection.commit();
                     System.out.println("Transaction Successfull!");
                 }
                 else{
                     connection.rollback();
-                    System.out.println("Transaction Unsuccessfull");
+                    System.out.println("Transaction Failed5");
                 }
-                
-
-                debitPreparedStatement.executeUpdate();
-                creditPreparedStatement.executeUpdate();
                 
             } 
             catch (Exception e) {
